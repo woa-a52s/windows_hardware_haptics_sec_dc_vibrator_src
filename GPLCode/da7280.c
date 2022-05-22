@@ -441,7 +441,7 @@ da7280_haptic_enable(IN PDEVICE_CONTEXT devContext, ULONG level)
 		return Status;
 	}
 
-	tmp = level * 0xFF;
+	tmp = level * 0x7F;
 	level = tmp / 100;
 
 	if (haptics->acc_en && level > 0x7F)
