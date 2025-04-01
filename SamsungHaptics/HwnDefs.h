@@ -20,25 +20,25 @@ Environment:
 #include "device.h"
 
 NTSTATUS
-SurfaceHapticsSetDevice(
+SamsungHapticsSetDevice(
 	PDEVICE_CONTEXT devContext,
 	PHWN_SETTINGS hwnSettings
 );
 
 NTSTATUS
-SurfaceHapticsInitializeDeviceState(
+SamsungHapticsInitializeDeviceState(
 	PDEVICE_CONTEXT devContext
 );
 
 NTSTATUS
-SurfaceHapticsGetCurrentDeviceState(
+SamsungHapticsGetCurrentDeviceState(
 	PDEVICE_CONTEXT devContext,
 	PHWN_SETTINGS hwnSettings,
 	ULONG hwnSettingsLength
 );
 
 NTSTATUS
-SurfaceHapticsSetCurrentDeviceState(
+SamsungHapticsSetCurrentDeviceState(
 	PDEVICE_CONTEXT devContext,
 	PHWN_SETTINGS hwnSettings,
 	ULONG hwnSettingsLength

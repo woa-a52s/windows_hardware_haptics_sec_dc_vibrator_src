@@ -16,29 +16,29 @@ Environment:
 --*/
 
 #include "driver.h"
-#include "spb.h"
-#include "controller.h"
-#include "registry.h"
 #include "HwnDefs.tmh"
 
 NTSTATUS
-SurfaceHapticsToggleVibrationMotor(
+SamsungHapticsToggleVibrationMotor(
 	PDEVICE_CONTEXT devContext,
 	HWN_STATE hwnState,
 	ULONG* hwnIntensity
 )
 {
+	UNREFERENCED_PARAMETER(hwnIntensity);
 	Trace(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Entry");
 
 	switch (hwnState) {
 	case HWN_OFF:
 	{
-		return da7280_haptic_disable(devContext);
+		devContext->PreviousState = HWN_OFF;
+		return GpioWritePin(devContext, 0);  // drive GPIO low
 		break;
 	}
 	case HWN_ON:
 	{
-		return da7280_haptic_enable(devContext, *hwnIntensity);
+		devContext->PreviousState = HWN_ON;
+		return GpioWritePin(devContext, 1);  // drive GPIO high
 		break;
 	}
 	default:
@@ -49,40 +49,32 @@ SurfaceHapticsToggleVibrationMotor(
 }
 
 NTSTATUS
-SurfaceHapticsSetDevice(
-	PDEVICE_CONTEXT devContext,
-	PHWN_SETTINGS hwnSettings
+SamsungHapticsSetDevice(
+    PDEVICE_CONTEXT devContext,
+    PHWN_SETTINGS hwnSettings
 )
 {
-	NTSTATUS Status = STATUS_SUCCESS;
-	UINT8 i = 0;
+    if (devContext == NULL || hwnSettings == NULL) {
+        return STATUS_INVALID_PARAMETER;
+    }
 
-	Trace(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Entry");
+    // Only device ID 0 is supported
+    if (hwnSettings->HwNId != 0) {
+        return STATUS_INVALID_PARAMETER;
+    }
 
-	if (devContext == NULL || hwnSettings == NULL)
-	{
-		return STATUS_INVALID_PARAMETER;
-	}
-
-	if (hwnSettings->HwNId >= (ULONG)devContext->NumberOfHapticsDevices)
-	{
-		return STATUS_INVALID_PARAMETER;
-	}
-
-	for (i = 0; i < devContext->NumberOfHapticsDevices; i++)
-	{
-		Status = SurfaceHapticsToggleVibrationMotor(
-			devContext,
-			hwnSettings->OffOnBlink,
-			&(hwnSettings->HwNSettings[HWN_INTENSITY])
-		);
-	}
-
-	return Status;
+    // Just toggle the vibrator based on OffOnBlink.
+	// Intensity is ignored
+    return SamsungHapticsToggleVibrationMotor(
+               devContext,
+               hwnSettings->OffOnBlink,
+               &hwnSettings->HwNSettings[HWN_INTENSITY]
+           );
 }
 
+
 NTSTATUS
-SurfaceHapticsInitializeDeviceState(
+SamsungHapticsInitializeDeviceState(
 	PDEVICE_CONTEXT devContext
 )
 {
@@ -96,9 +88,9 @@ SurfaceHapticsInitializeDeviceState(
 		return STATUS_INVALID_PARAMETER;
 	}
 
-	devContext->CurrentStates = (PSURFACE_HAPTICS_CURRENT_STATE)ExAllocatePool2(
+	devContext->CurrentStates = (PSAMSUNG_HAPTICS_CURRENT_STATE)ExAllocatePool2(
 		PagedPool,
-		sizeof(SURFACE_HAPTICS_CURRENT_STATE),
+		sizeof(SAMSUNG_HAPTICS_CURRENT_STATE),
 		HAPTICS_POOL_TAG
 	);
 
@@ -128,7 +120,7 @@ SurfaceHapticsInitializeDeviceState(
 }
 
 NTSTATUS
-SurfaceHapticsGetCurrentDeviceState(
+SamsungHapticsGetCurrentDeviceState(
 	PDEVICE_CONTEXT devContext,
 	PHWN_SETTINGS hwnSettings,
 	ULONG hwnSettingsLength
@@ -143,11 +135,11 @@ SurfaceHapticsGetCurrentDeviceState(
 		return STATUS_INVALID_PARAMETER;
 	}
 
-	PSURFACE_HAPTICS_CURRENT_STATE currentState = devContext->CurrentStates;
+	PSAMSUNG_HAPTICS_CURRENT_STATE currentState = devContext->CurrentStates;
 
 	if (!currentState)
 	{
-		Status = SurfaceHapticsInitializeDeviceState(devContext);
+		Status = SamsungHapticsInitializeDeviceState(devContext);
 		if (!NT_SUCCESS(Status))
 		{
 			return Status;
@@ -183,7 +175,7 @@ SurfaceHapticsGetCurrentDeviceState(
 }
 
 NTSTATUS
-SurfaceHapticsSetCurrentDeviceState(
+SamsungHapticsSetCurrentDeviceState(
 	PDEVICE_CONTEXT devContext,
 	PHWN_SETTINGS hwnSettings,
 	ULONG hwnSettingsLength
@@ -198,17 +190,17 @@ SurfaceHapticsSetCurrentDeviceState(
 		return STATUS_INVALID_PARAMETER;
 	}
 
-	PSURFACE_HAPTICS_CURRENT_STATE previousState = NULL;
-	PSURFACE_HAPTICS_CURRENT_STATE currentState = devContext->CurrentStates;
+	PSAMSUNG_HAPTICS_CURRENT_STATE previousState = NULL;
+	PSAMSUNG_HAPTICS_CURRENT_STATE currentState = devContext->CurrentStates;
 
 	hwnSettings->HwNSettings[HWN_CYCLE_GRANULARITY] = 0;
 	hwnSettings->HwNSettings[HWN_CURRENT_MTE_RESERVED] = HWN_CURRENT_MTE_NOT_SUPPORTED;
 
 	if (NULL == currentState)
 	{
-		devContext->CurrentStates = (PSURFACE_HAPTICS_CURRENT_STATE)ExAllocatePool2(
+		devContext->CurrentStates = (PSAMSUNG_HAPTICS_CURRENT_STATE)ExAllocatePool2(
 			PagedPool,
-			sizeof(SURFACE_HAPTICS_CURRENT_STATE),
+			sizeof(SAMSUNG_HAPTICS_CURRENT_STATE),
 			HAPTICS_POOL_TAG);
 
 		if (NULL != devContext->CurrentStates)
@@ -243,9 +235,9 @@ SurfaceHapticsSetCurrentDeviceState(
 
 		if (currentState == NULL)
 		{
-			currentState = (PSURFACE_HAPTICS_CURRENT_STATE)ExAllocatePool2(
+			currentState = (PSAMSUNG_HAPTICS_CURRENT_STATE)ExAllocatePool2(
 				PagedPool,
-				sizeof(SURFACE_HAPTICS_CURRENT_STATE),
+				sizeof(SAMSUNG_HAPTICS_CURRENT_STATE),
 				HAPTICS_POOL_TAG
 			);
 

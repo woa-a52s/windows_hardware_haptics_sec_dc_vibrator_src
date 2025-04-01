@@ -18,22 +18,18 @@ Environment:
 --*/
 
 #pragma once
-
-#include "spb.h"
-#include "registry.h"
 #include <hwnclx.h>
 #include <hwn.h>
-#include "..\GPLCode\da7280.h"
 
 EXTERN_C_START
 
 #define HAPTICS_POOL_TAG 'HnwH'
 
-typedef struct _SURFACE_HAPTICS_CURRENT_STATE
+typedef struct _SAMSUNG_HAPTICS_CURRENT_STATE
 {
 	HWN_SETTINGS CurrentState;
-	struct _SURFACE_HAPTICS_CURRENT_STATE* NextState;
-} SURFACE_HAPTICS_CURRENT_STATE, * PSURFACE_HAPTICS_CURRENT_STATE;
+	struct _SAMSUNG_HAPTICS_CURRENT_STATE* NextState;
+} SAMSUNG_HAPTICS_CURRENT_STATE, * PSAMSUNG_HAPTICS_CURRENT_STATE;
 
 //
 // The device context performs the same job as
@@ -47,31 +43,22 @@ typedef struct _DEVICE_CONTEXT
 	WDFDEVICE Device;
 
 	//
-	// Interrupt servicing
+	// GPIO resource info (from the ACPI resource)
 	//
-	WDFINTERRUPT InterruptObject;
+	LARGE_INTEGER GpioConnId;     // LowPart/HighPart from the CmResourceTypeConnection descriptor
+	BOOLEAN       GpioFound;      // Did we find the GPIO resource?
 
 	//
-	// Spb (I2C) related members used for the lifetime of the device
+	// GPIO I/O target handle (for sending IOCTL_GPIO_WRITE_PINS)
 	//
-	SPB_CONTEXT I2CContext;
-
-	//
-	// Driver configuration
-	//
-	SURFACE_HAPTICS_CONFIG Config;
-
-	//
-	// Controller configuration
-	//
-	DA7280_CONFIGURATION Haptics;
+	WDFIOTARGET GpioIoTarget;
 
 	//
 	// Number of vibration motors
 	//
 	USHORT NumberOfHapticsDevices;
 
-	PSURFACE_HAPTICS_CURRENT_STATE CurrentStates;
+	PSAMSUNG_HAPTICS_CURRENT_STATE CurrentStates;
 	HWN_STATE PreviousState;
 } DEVICE_CONTEXT, * PDEVICE_CONTEXT;
 
@@ -86,9 +73,14 @@ WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DEVICE_CONTEXT, DeviceGetContext)
 // Function to initialize the device and its callbacks
 //
 NTSTATUS
-SurfaceHapticsCreateDevice(
+SamsungHapticsCreateDevice(
 	_Inout_ WDFDRIVER Driver,
 	_Inout_ PWDFDEVICE_INIT DeviceInit
+);
+
+NTSTATUS GpioWritePin(
+	IN PDEVICE_CONTEXT devContext,
+	UCHAR value
 );
 
 EXTERN_C_END

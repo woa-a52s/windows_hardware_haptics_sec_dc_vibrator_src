@@ -22,8 +22,8 @@ Environment:
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text (INIT, DriverEntry)
-#pragma alloc_text (PAGE, SurfaceHapticsEvtDriverUnload)
-#pragma alloc_text (PAGE, SurfaceHapticsEvtDriverContextCleanup)
+#pragma alloc_text (PAGE, SamsungHapticsEvtDriverUnload)
+#pragma alloc_text (PAGE, SamsungHapticsEvtDriverContextCleanup)
 #endif
 
 NTSTATUS
@@ -70,8 +70,8 @@ Return Value:
 
 	Trace(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Entry");
 
-	WDF_DRIVER_CONFIG_INIT(&config, SurfaceHapticsEvtDeviceAdd);
-	config.EvtDriverUnload = SurfaceHapticsEvtDriverUnload;
+	WDF_DRIVER_CONFIG_INIT(&config, SamsungHapticsEvtDeviceAdd);
+	config.EvtDriverUnload = SamsungHapticsEvtDriverUnload;
 	config.DriverPoolTag = HAPTICS_POOL_TAG;
 
 	//
@@ -79,7 +79,7 @@ Return Value:
 	// the framework driver object is deleted during driver unload.
 	//
 	WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
-	attributes.EvtCleanupCallback = SurfaceHapticsEvtDriverContextCleanup;
+	attributes.EvtCleanupCallback = SamsungHapticsEvtDriverContextCleanup;
 
 	status = WdfDriverCreate(DriverObject,
 		RegistryPath,
@@ -98,13 +98,13 @@ Return Value:
 	regPacket.Size = sizeof(HWN_CLIENT_REGISTRATION_PACKET);
 	regPacket.DeviceContextSize = sizeof(DEVICE_CONTEXT);
 
-	regPacket.ClientInitializeDevice = SurfaceHapticsInitializeDevice;
-	regPacket.ClientUnInitializeDevice = SurfaceHapticsUnInitializeDevice;
-	regPacket.ClientQueryDeviceInformation = SurfaceHapticsQueryDeviceInformation;
-	regPacket.ClientStartDevice = SurfaceHapticsStartDevice;
-	regPacket.ClientStopDevice = SurfaceHapticsStopDevice;
-	regPacket.ClientSetHwNState = SurfaceHapticsSetState;
-	regPacket.ClientGetHwNState = SurfaceHapticsGetState;
+	regPacket.ClientInitializeDevice = SamsungHapticsInitializeDevice;
+	regPacket.ClientUnInitializeDevice = SamsungHapticsUnInitializeDevice;
+	regPacket.ClientQueryDeviceInformation = SamsungHapticsQueryDeviceInformation;
+	regPacket.ClientStartDevice = SamsungHapticsStartDevice;
+	regPacket.ClientStopDevice = SamsungHapticsStopDevice;
+	regPacket.ClientSetHwNState = SamsungHapticsSetState;
+	regPacket.ClientGetHwNState = SamsungHapticsGetState;
 
 	status = HwNRegisterClient(
 		Driver,
@@ -124,7 +124,7 @@ Return Value:
 }
 
 NTSTATUS
-SurfaceHapticsEvtDeviceAdd(
+SamsungHapticsEvtDeviceAdd(
 	_In_    WDFDRIVER       Driver,
 	_Inout_ PWDFDEVICE_INIT DeviceInit
 )
@@ -151,7 +151,7 @@ Return Value:
 
 	Trace(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Entry");
 
-	status = SurfaceHapticsCreateDevice(Driver, DeviceInit);
+	status = SamsungHapticsCreateDevice(Driver, DeviceInit);
 
 	Trace(TRACE_LEVEL_INFORMATION, TRACE_DRIVER, "%!FUNC! Exit");
 
@@ -159,7 +159,7 @@ Return Value:
 }
 
 VOID
-SurfaceHapticsEvtDriverContextCleanup(
+SamsungHapticsEvtDriverContextCleanup(
 	_In_ WDFOBJECT DriverObject
 )
 /*++
@@ -190,7 +190,7 @@ Return Value:
 }
 
 VOID
-SurfaceHapticsEvtDriverUnload(
+SamsungHapticsEvtDriverUnload(
 	IN WDFDRIVER Driver
 )
 /*++

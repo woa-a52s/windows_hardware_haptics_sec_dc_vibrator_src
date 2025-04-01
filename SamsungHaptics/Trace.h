@@ -27,7 +27,7 @@ Environment:
 
 #define WPP_CONTROL_GUIDS                                              \
     WPP_DEFINE_CONTROL_GUID(                                           \
-        SurfaceHapticsTraceGuid, (f85c83f4,bfd2,42f6,bf40,b695a6324318), \
+        SamsungHapticsTraceGuid, (f85c83f4,bfd2,42f6,bf40,b695a6324318), \
                                                                             \
         WPP_DEFINE_BIT(TRACE_INIT)          \
         WPP_DEFINE_BIT(TRACE_REGISTRY)      \

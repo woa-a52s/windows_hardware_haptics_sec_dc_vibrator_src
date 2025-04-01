@@ -19,7 +19,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Inf Include="SurfaceHaptics.inf">
+    <Inf Include="SamsungHaptics.inf">
       <Filter>Driver Files</Filter>
     </Inf>
   </ItemGroup>
@@ -33,19 +33,7 @@
     <ClInclude Include="Trace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Spb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Registry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="HwnDefs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="da7280.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -57,15 +45,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HwnClient.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Spb.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="da7280.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Registry.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HwnDefs.c">

@@ -19,9 +19,29 @@ Environment:
 
 #include "driver.h"
 #include "device.tmh"
+#include <gpio.h>
 
 NTSTATUS
-SurfaceHapticsCreateDevice(
+GpioWritePin(
+	IN PDEVICE_CONTEXT devContext,
+	UCHAR value
+)
+{
+	WDF_MEMORY_DESCRIPTOR memDesc;
+	WDF_MEMORY_DESCRIPTOR_INIT_BUFFER(&memDesc, &value, sizeof(value));
+	return WdfIoTargetSendIoctlSynchronously(
+		devContext->GpioIoTarget,   // Use the GPIO I/O target handle
+		NULL,                       // Optional WDFREQUEST (NULL for synchronous)
+		IOCTL_GPIO_WRITE_PINS,
+		&memDesc,                   // Input buffer with our value
+		NULL,                       // No output buffer
+		NULL,                       // No request options
+		NULL                        // No bytes returned
+	);
+}
+
+NTSTATUS
+SamsungHapticsCreateDevice(
 	_Inout_ WDFDRIVER Driver,
 	_Inout_ PWDFDEVICE_INIT DeviceInit
 )
@@ -86,6 +106,7 @@ Return Value:
 	devContext = DeviceGetContext(device);
 	if (devContext == NULL)
 	{
+		// Device context fails. Look into it
 		Trace(TRACE_LEVEL_ERROR, TRACE_DRIVER, "DeviceGetContext failed");
 		//status = STATUS_INSUFFICIENT_RESOURCES;
 	}

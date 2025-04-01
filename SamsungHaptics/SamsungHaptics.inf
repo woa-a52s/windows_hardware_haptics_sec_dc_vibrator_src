@@ -1,0 +1,58 @@
+;
+; 
+; SamsungHaptics.inf
+;
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = System
+ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider    = %ManufacturerName%
+CatalogFile = SamsungHaptics.cat
+DriverVer   =
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 13
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+SamsungHaptics.sys = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName% = Standard,NT$ARCH$.10.0...16299
+
+[Standard.NT$ARCH$.10.0...16299]
+%SamsungHaptics.DeviceDesc% = SamsungHaptics_Device, ACPI\SECHWN
+
+[SamsungHaptics_Device.NT]
+CopyFiles = Drivers_Dir
+
+[Drivers_Dir]
+SamsungHaptics.sys
+
+;-------------- Service installation
+[SamsungHaptics_Device.NT.Services]
+AddService = SamsungHaptics, %SPSVCINST_ASSOCSERVICE%, SamsungHaptics_Service_Inst
+
+; -------------- SamsungHaptics driver install sections
+[SamsungHaptics_Service_Inst]
+DisplayName    = %SamsungHaptics.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\SamsungHaptics.sys
+
+[Strings]
+SPSVCINST_ASSOCSERVICE    = 0x00000002
+
+ManufacturerName          = "A52sWOA"
+DiskName                  = "Samsung Galaxy A52s Haptics Installation Disk"
+SamsungHaptics.DeviceDesc = "Samsung Galaxy A52s Haptics"
+SamsungHaptics.SVCDESC    = "Samsung Galaxy A52s Haptics"
