@@ -23,7 +23,7 @@ Device (HWN1)
         Name (RBUF,
             ResourceTemplate ()
             {
-				GpioIo(Exclusive, PullDefault, 0, 0, IoRestrictionNone, "\\_SB.GIO0", 0, ResourceConsumer, ,) {62}
+		GpioIo(Exclusive, PullDefault, 0, 0, IoRestrictionNone, "\\_SB.GIO0", 0, ResourceConsumer, ,) {62}
             }
         )
         Return(RBUF)
